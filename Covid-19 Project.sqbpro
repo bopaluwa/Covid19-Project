@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/blessing.opaluwa/Desktop/COMPLETED PROJECT/PROJECT 4- COVID PROJECT/Covid 19 Project.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="6781"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,12:mainCovid_Deaths"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="Covid_Deaths" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="65"/><column index="2" value="70"/><column index="3" value="74"/><column index="4" value="59"/><column index="5" value="76"/><column index="6" value="84"/><column index="7" value="80"/><column index="8" value="152"/><column index="9" value="92"/><column index="10" value="88"/><column index="11" value="160"/><column index="12" value="161"/><column index="13" value="157"/><column index="14" value="229"/><column index="15" value="169"/><column index="16" value="165"/><column index="17" value="237"/><column index="18" value="128"/><column index="19" value="88"/><column index="20" value="165"/><column index="21" value="101"/><column index="22" value="178"/><column index="23" value="157"/><column index="24" value="234"/><column index="25" value="170"/><column index="26" value="247"/><column index="27" value="81"/><column index="28" value="77"/><column index="29" value="180"/><column index="30" value="176"/><column index="31" value="149"/><column index="32" value="248"/><column index="33" value="95"/><column index="34" value="110"/><column index="35" value="98"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="Data Exploration">---Project Title: COVID-19 Data Exploration
+---Industry: Healthcare
+
+SELECT * 
+FROM Covid_Deaths;
+
+SELECT * 
+FROM Covid_Vaccinations;
+
+----To view all cells where the continent is not null in the dataset
+SELECT * 
+FROM Covid_Deaths
+WHERE continent IS NOT NULL;
+
+SELECT * 
+FROM Covid_Vaccinations
+WHERE continent IS NOT NULL;
+
+----To view specific columns in the covid death dataset and order by country
+SELECT country,date,population,total_cases,new_cases,total_deaths
+FROM Covid_Deaths
+WHERE continent is not NULL
+ORDER BY 1 DESC;
+
+----To view specific columns in the covid death dataset regarding Nigeria
+SELECT country,date,population,total_cases,new_cases,total_deaths
+FROM Covid_Deaths
+WHERE country ='Nigeria';
+
+----To view death percentage (Shows the Death likelyhood if covid-19 is contacted in a given country)
+---Total Cases Vs Total Deaths
+SELECT country,date,total_cases,total_deaths,round((total_deaths/total_cases)*100,2) AS Death_Percentage
+FROM Covid_Deaths
+WHERE country like '%Nigeria%'
+ORDER BY total_cases DESC;
+
+----To view death rate (Shows the rate of deaths in a given population)
+----Total Deaths Vs Population
+SELECT country,date,total_cases,total_deaths,round((total_deaths/population)*100,5) AS Death_Percentage
+FROM Covid_Deaths
+WHERE country like '%Nigeria%'
+ORDER BY total_deaths DESC;
+
+---To view Total cases, Total Deaths &amp;amp; Death Percentage across countries
+SELECT country,sum(new_cases) as OverallTotalCases,sum(new_deaths) as OverallTotalDeaths,round(sum(total_deaths)/sum(total_cases)*100,2) AS Death_Percentage
+FROM Covid_Deaths
+WHERE continent is NOT NULL
+GROUP BY country;
+
+---To view Total cases, Total Deaths &amp;amp; Death Percentage in Africa
+SELECT continent,sum(new_cases) as OverallTotalCases,sum(new_deaths) as OverallTotalDeaths,round(sum(total_deaths)/sum(total_cases)*100,2) AS Death_Percentage
+FROM Covid_Deaths
+WHERE continent like '%Africa'
+GROUP BY continent;
+
+---To view Total cases, Total Deaths &amp;amp; Death Percentage across Continents
+SELECT continent,sum(new_cases) as OverallTotalCases,sum(new_deaths) as OverallTotalDeaths,round(sum(total_deaths)/sum(total_cases)*100,2) AS Death_Percentage
+FROM Covid_Deaths
+WHERE continent IS NOT NULL
+GROUP BY continent
+ORDER BY 4 DESC;
+
+----To view Infection rate (Shows the percentage of population that contacted covid) in United States
+----Total Cases Vs Polulation
+SELECT country,date,total_cases,population,round((total_cases/population)*100,2) AS Infection_Percentage
+FROM Covid_Deaths
+WHERE country ='United States'
+ORDER BY total_cases DESC;
+
+----To view countries with the highest Infection rate compared to population
+----Total Cases Vs Population
+SELECT country,population,max(total_cases) AS Total_Infection_Count,MAX((total_cases/population)*100)AS RateofPopulationInfected
+FROM Covid_Deaths
+WHERE continent IS NOT NULL
+GROUP BY country,population
+ORDER BY RateofPopulationInfected DESC;
+
+----To view infection rate in all countries by continent
+SELECT continent,country,population, max(total_cases) AS TotalInfectionCount, round(max(total_cases/population)*100,2) AS RateofPopulationInfected
+FROM Covid_Deaths
+WHERE continent is NOT NULL
+GROUP BY country,population
+ORDER BY RateofPopulationInfected DESC;
+
+----To view countries with the highest death count compared to population
+SELECT country,max(total_deaths) AS Total_Death_Count
+FROM Covid_Deaths
+WHERE continent IS NOT NULL
+GROUP BY country
+ORDER BY Total_Death_Count DESC;
+
+----To view continents with the highest death count
+SELECT continent,max(total_deaths) AS Total_Death_Count
+FROM Covid_Deaths
+WHERE continent IS NOT NULL
+GROUP BY continent
+ORDER BY Total_Death_Count DESC;
+
+----To view continents and countries with the highest death count
+SELECT continent,country,max(total_deaths) AS Total_Death_Count
+FROM Covid_Deaths
+WHERE continent IS NOT NULL
+GROUP BY continent,country
+ORDER BY Total_Death_Count DESC;
+
+----To view world 
+SELECT max(total_cases) AS Total_Case_Count,max(total_deaths) AS Total_Death_Count,round(max(total_deaths)/max(total_cases)*100,2) AS Death_Percentage
+FROM Covid_Deaths
+WHERE continent IS NOT NULL;
+
+----To Join Covid death and Covid Vavinnation tables together using a primary key
+SELECT *
+FROM Covid_Deaths cd
+LEFT JOIN Covid_Vaccinations cv
+ON cd.country=cv.country
+AND cd.date=cv.date
+WHERE cd.continent IS NOT NULL
+GROUP BY cd.continent,cd.country,cd.date,cd.population;
+
+----To view Total Population vs Vaccinations
+SELECT cd.continent,cd.country,cd.date,cd.population,cv.new_vaccinations
+FROM Covid_Deaths cd
+LEFT JOIN Covid_Vaccinations cv
+ON cd.country=cv.country
+AND cd.date=cv.date
+WHERE cd.continent IS NOT NULL
+ORDER BY 1,2;
+
+SELECT cd.continent,cd.country,cd.date,cd.population,cv.population,max(cv.total_vaccinations) AS TotalPeopleVaccinated,round(max((cv.total_vaccinations) /cv.population)*100,2) AS Percentage_Vaccinated
+FROM Covid_Deaths cd
+LEFT JOIN Covid_Vaccinations cv
+ON cd.country=cv.country
+AND cd.date=cv.date
+WHERE cd.continent IS NOT NULL
+GROUP BY cd.continent,cd.country,cd.date,cd.population;
+
+----Using Common Table Expression (CTE)
+WITH PopVsVac (continent,country,date,population,new_vaccinations,Total_People_Vaccination) AS 
+(SELECT cd.continent,cd.country,cd.date,cd.population,cv.new_vaccinations,sum(cv.new_vaccinations) OVER(PARTITION BY cd.country ORDER BY cd.country,cd.date) AS Total_People_Vaccination
+FROM Covid_Deaths cd
+LEFT JOIN Covid_Vaccinations cv
+ON cd.country=cv.country
+AND cd.date=cv.date
+WHERE cd.continent IS NOT NULL)
+SELECT *
+FROM PopVsVac;
+
+CREATE VIEW PercentPopulationVaccinated AS
+SELECT cd.continent,cd.country,cd.date,cd.population,cv.new_vaccinations,sum(cv.new_vaccinations) OVER(PARTITION BY cd.country ORDER BY cd.country,cd.date) AS Rolling_People_Vaccinated
+FROM Covid_Deaths cd
+LEFT JOIN Covid_Vaccinations cv
+ON cd.country=cv.country
+AND cd.date=cv.date
+WHERE cd.continent IS NOT NULL;
+
+CREATE VIEW TotalPeopleVaccinated AS
+SELECT cd.continent,cd.country,cd.date,cd.population,cv.new_vaccinations,
+sum(cv.new_vaccinations)OVER(PARTITION BY cd.country ORDER BY cd.country,cd.date) AS TotalPeopleVaccinated
+FROM Covid_Deaths cd
+LEFT JOIN Covid_Vaccinations cv
+ON cd.country=cv.country
+AND cd.date=cv.date
+WHERE cd.continent IS NOT NULL;</sql><current_tab id="0"/></tab_sql></sqlb_project>
